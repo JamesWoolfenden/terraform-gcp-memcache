@@ -1,3 +1,4 @@
+# holden:ignore:LOCAL_GCP_001: this module exists to manage existing Memcached instances during migration; the service deprecation is documented in the README and tracked as HOLDEN_AI_001
 resource "google_memcache_instance" "main" {
   name                 = var.name
   region               = var.region
@@ -32,6 +33,13 @@ resource "google_memcache_instance" "main" {
         seconds = 0
         nanos   = 0
       }
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = alltrue([for z in var.zones : startswith(z, "${var.region}-")])
+      error_message = "var.zones must all be zones in var.region (${var.region})"
     }
   }
 }

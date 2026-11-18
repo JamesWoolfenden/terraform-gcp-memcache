@@ -1,0 +1,17 @@
+id: LOCAL_GCP_001
+name: Memorystore for Memcached (google_memcache_instance) is deprecated — migrate to Memorystore for Valkey
+principle: patch-management
+severity: MEDIUM
+rationale: |
+  Google deprecated Memorystore for Memcached on 2026-01-20. After 2027-02-01 new
+  instances can only be created in projects that already have one, and the service
+  shuts down on 2029-01-31. It also has no authentication, no in-transit encryption
+  and no CMEK support.
+message: |
+  google_memcache_instance uses the deprecated Memorystore for Memcached service.
+remediation: |
+  Migrate to Memorystore for Valkey (google_memorystore_instance) following Google's
+  Memcached-to-Valkey migration guide.
+resources:
+  google_memcache_instance:
+    deprecated: true

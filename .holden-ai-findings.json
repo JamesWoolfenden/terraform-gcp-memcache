@@ -1,0 +1,56 @@
+{
+  "scan_date": "2026-11-18T00:00:00Z",
+  "scan_path": ".",
+  "category": "all",
+  "findings": [
+    {
+      "id": "HOLDEN_AI_001",
+      "status": "open",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "unresolved_since": "2026-11-18",
+      "suppression_reason": null,
+      "principle": "patch-management",
+      "severity": "MEDIUM",
+      "confidence": "high",
+      "title": "Memorystore for Memcached is a deprecated service: no new instances in new projects after 2027-02-01, shut down 2029-01-31",
+      "file": "google_memcache_instance.main.tf",
+      "line": 2,
+      "resource": "google_memcache_instance.main",
+      "related_resources": [],
+      "explanation": "Google deprecated Memorystore for Memcached on 2026-01-20; from 2027-02-01 instances can only be created in projects that already have one, and support and the service itself end on 2029-01-31. A freshly published module steers new users onto a dead-end service that also lacks the controls its replacement has (no AUTH/IAM auth, no in-transit encryption, no CMEK), so anything on the authorized network can read and write the cache. No built-in policy covers google_memcache_instance deprecation.",
+      "remediation": "Position the module for managing existing instances during migration only (README notice added), and point new workloads at Memorystore for Valkey; decide whether to keep publishing the module or mark the registry entry deprecated.",
+      "fixable": false
+    },
+    {
+      "id": "HOLDEN_AI_002",
+      "status": "fixed",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18",
+      "unresolved_since": null,
+      "suppression_reason": null,
+      "principle": "reliability",
+      "severity": "LOW",
+      "confidence": "high",
+      "title": "var.zones is not checked against var.region, so a zone from another region fails only at apply",
+      "file": "google_memcache_instance.main.tf",
+      "line": 2,
+      "resource": "google_memcache_instance.main",
+      "related_resources": ["variable.zones", "variable.region"],
+      "explanation": "The zones validation only checks the zone-name shape. Node zones must be in the instance's region, so europe-west1-b with region europe-west2 plans cleanly and the create call fails. Best-fit principle: apply-time correctness.",
+      "remediation": "Add a lifecycle precondition requiring each zone to start with \"<region>-\" (a precondition keeps the module on Terraform 1.5 rather than needing 1.9 cross-variable validation).",
+      "fixable": true,
+      "fix": "lifecycle {\n  precondition {\n    condition     = alltrue([for z in var.zones : startswith(z, \"${var.region}-\")])\n    error_message = \"var.zones must all be zones in var.region\"\n  }\n}"
+    }
+  ],
+  "suggested_policies": [
+    {
+      "rationale": "Memorystore for Memcached is deprecated (no new instances in new projects from 2027-02-01, shutdown 2029-01-31). This mirrors HLD_GCP_288 for Cloud Functions 1st gen: any google_memcache_instance is on a dead-end service, which the deprecated operator expresses exactly.",
+      "yaml": "id: LOCAL_GCP_001\nname: Memorystore for Memcached (google_memcache_instance) is deprecated — migrate to Memorystore for Valkey\nprinciple: patch-management\nseverity: MEDIUM\nrationale: |\n  Google deprecated Memorystore for Memcached on 2026-01-20. After 2027-02-01 new\n  instances can only be created in projects that already have one, and the service\n  shuts down on 2029-01-31. It also has no authentication, no in-transit encryption\n  and no CMEK support.\nmessage: |\n  google_memcache_instance uses the deprecated Memorystore for Memcached service.\nremediation: |\n  Migrate to Memorystore for Valkey (google_memorystore_instance) following Google's\n  Memcached-to-Valkey migration guide.\nresources:\n  google_memcache_instance:\n    deprecated: true\n",
+      "status": "installed",
+      "first_seen": "2026-11-18",
+      "last_seen": "2026-11-18"
+    }
+  ],
+  "suggested_suppressions": []
+}
