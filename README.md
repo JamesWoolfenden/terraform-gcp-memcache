@@ -8,6 +8,8 @@
 
 > **Deprecated service.** Google has deprecated Memorystore for Memcached: after **1 February 2027** new instances can only be created in projects that already have one, and the service shuts down on **31 January 2029**. Use this module only to manage existing Memcached workloads while you migrate; for new caches use Memorystore for Valkey (Google's recommended replacement, which also adds IAM auth, in-transit encryption and CMEK). See the [deprecation notice](https://cloud.google.com/memorystore/docs/memcached/deprecation/memcached).
 
+> **Test fixture.** This repository is kept as test data for tooling such as [holden](https://github.com/JamesWoolfenden/holden), so the deprecation findings against it are expected. It is not intended for production use.
+
 Terraform module for Memorystore for Memcached. Creates a Memcached instance attached to your VPC through private service access (no default network, no public endpoint), with a pinned Memcached version, a weekly maintenance window, deletion protection on by default, and labels. Memorystore for Memcached does not support customer-managed encryption keys (CMEK), so data is encrypted at rest with Google-managed keys only; use Memorystore for Redis or Valkey if CMEK is a requirement.
 
 ## Usage
